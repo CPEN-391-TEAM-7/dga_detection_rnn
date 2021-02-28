@@ -5,7 +5,7 @@
 # activation: sigmoid
 from math_help.fxp import Fxp
 
-model_path = "model_export/model_bininary_0210.bin"
+model_path = "model_export/model_bininary_0228.bin"
 input_string = "google.com"
 
 class RNN_Foward_Propagation(object):
@@ -50,6 +50,7 @@ class RNN_Foward_Propagation(object):
 rnn = RNN_Foward_Propagation(model_path)
 
 #rnn.parse_weight()
-rnn.get_byte_number(0)
+a = rnn.get_byte_number(0)
+a.value()
 
 
