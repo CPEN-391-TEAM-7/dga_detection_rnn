@@ -10,9 +10,18 @@ class Fxp(object):
         
     def __mul__(self, other):
         result = [0]*32
-        for i, c in enumerate(reversed(self.num)):
+        sign = 0
+        tmpA = self.num.copy()
+        tmpB = other.num.copy()
+        if tmpA[0] == 1:
+            sign = (sign + 1)%2
+            tmpA = self.complement(tmpA)
+        if  tmpB[0] == 1:
+            sign = (sign + 1)%2
+            tmpB = self.complement(tmpB)
+        for i, c in enumerate(reversed(tmpA)):
             tmp = [0]*16
-            for j, d in enumerate(reversed(other.num)):
+            for j, d in enumerate(reversed(tmpB)):
                 tmp[j] = c*d
             overflow = 0
             for k, e in enumerate(tmp):
@@ -20,13 +29,25 @@ class Fxp(object):
                 result[i+k] = (result[i+k] + overflow + e)%2
                 overflow = nxtoverflow
         result.reverse()
-        return Fxp([result[0]]+result[5:20])
+        if sign:
+            return Fxp([sign]+self.complement(result[5:20]))
+        else:
+            return Fxp([sign]+result[5:20])
 
     def __rmul__(self, other):
         result = [0]*32
-        for i, c in enumerate(reversed(self.num)):
+        sign = 0
+        tmpA = self.num.copy()
+        tmpB = other.num.copy()
+        if tmpA[0] == 1:
+            sign = (sign + 1)%2
+            tmpA = self.complement(tmpA)
+        if  tmpB[0] == 1:
+            sign = (sign + 1)%2
+            tmpB = self.complement(tmpB)
+        for i, c in enumerate(reversed(tmpA)):
             tmp = [0]*16
-            for j, d in enumerate(reversed(other.num)):
+            for j, d in enumerate(reversed(tmpB)):
                 tmp[j] = c*d
             overflow = 0
             for k, e in enumerate(tmp):
@@ -34,7 +55,10 @@ class Fxp(object):
                 result[i+k] = (result[i+k] + overflow + e)%2
                 overflow = nxtoverflow
         result.reverse()
-        return Fxp([result[0]]+result[5:20])
+        if sign:
+            return Fxp([sign]+self.complement(result[5:20]))
+        else:
+            return Fxp([sign]+result[5:20])
 
     def value(self):
         if self.num == None:
@@ -51,3 +75,11 @@ class Fxp(object):
                         result += math.pow(2,3-i)
                 result *= -1
             return result
+    
+    def complement(self, a):
+        for i,c in enumerate(a):
+            if c == 1:
+                a[i] = 0
+            else:
+                a[i] = 1
+        return a
