@@ -42,4 +42,43 @@ class RNN(object):
         for index in y_test:
             y = float(str(index).strip('\n').strip('\r').strip(' ').strip('[').strip(']'))
             print(str(y) + '\n')
+    
+    def save_model_bin(self, binFilePath, modelPath=None):
+        import json
+        from fxpmath import Fxp
+        if modelPath != None:
+            self.model = load_model(modelPath, compile="False")
+        with open(binFilePath, 'wb') as binFile:
+            for layer in self.model.layers:
+                g=layer.get_config()
+                h=layer.get_weights()
+                print(g)
+                #binFile.write(json.dumps(g).encode(encoding="ascii",errors="unknown char"))
+                # embedding = 1 * 68 * 8
+                # simple rnn = 8 * 8, 8 * 8, 8 * 1
+                # drop out: none
+                # dense: 8 * 1, 1 * 1
+                # activation: sigmoid
+                for i in h:
+                    i = np.array(i)
+                    for index, x in np.ndenumerate(i):
+                        print(x)
+                        h_fxp = Fxp(x, signed=True, n_word=16, n_frac=12)
+                        print(h_fxp.bin())
+                        binFile.write(h_fxp.bin().encode(encoding="ascii",errors="unknown char"))
 
+            
+    def save_model_txt(self, txtPath, modelPath=None):
+        import json
+        if modelPath != None:
+            self.model = load_model(modelPath, compile="False")
+        with open(txtPath, 'w') as txtFile:
+            for layer in self.model.layers:
+                g=layer.get_config()
+                h=layer.get_weights()
+                print(type(g))
+                print(type(h))
+                txtFile.write(json.dumps(g))
+                txtFile.write("\n")
+                txtFile.write(str(h))
+                txtFile.write("\n")
