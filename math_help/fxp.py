@@ -1,10 +1,13 @@
 import math
+
 class Fxp(object):
 
     def __init__(self, obj):
         # 0 is encoded as 48 in utf-8, 1 is encoded as 49
         if isinstance(obj, bytes):
             self.num = [x-48 for x in list(obj)]
+        elif isinstance(obj, str):
+            self.num = [int(x) for x in list(obj)]
         else:
             self.num = obj
         
@@ -59,6 +62,23 @@ class Fxp(object):
             return Fxp([sign]+self.complement(result[5:20]))
         else:
             return Fxp([sign]+result[5:20])
+
+    def __add__(self, other):
+        result = [0]*16
+        tmpA = self.num.copy()
+        tmpA.reverse()
+        tmpB = other.num.copy()
+        tmpB.reverse()
+        overflow = 0
+        for i in range(len(tmpA)):
+            nxtoverflow = math.floor((tmpA[i] + tmpB[i] + overflow) / 2)
+            result[i] = (tmpA[i] + tmpB[i] + overflow)%2
+            overflow = nxtoverflow
+        result.reverse()
+        return Fxp(result)
+
+    def __radd__(self, other):
+        return self.__add__(other)
 
     def value(self):
         if self.num == None:

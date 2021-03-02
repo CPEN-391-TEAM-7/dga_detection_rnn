@@ -1,10 +1,9 @@
+import sys
+sys.path.insert(1, '/Users/jingyuan/Desktop/dga/dga_detection_rnn')
 from model.rnn import RNN
-import numpy as np
-
-import os
 import argparse
 
-modelPath = 'model_export/rnn_binary_model_0209.h5'
+modelPath = 'model_export/rnn_binary_model_0228.h5'
 charListPath = 'conf/charList.txt'
 
 def getCharList(charListPath):
@@ -37,7 +36,8 @@ if __name__ == '__main__':
         except:
             print('unexpected char' + ' : ' + char)
             x_data.append(0)
-    
+
+    print(x_data)
     rnn_binary_model = RNN()
     rnn_binary_model.predict_p([x_data], modelPath=modelPath)
     

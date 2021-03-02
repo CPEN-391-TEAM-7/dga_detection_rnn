@@ -11,13 +11,13 @@ class RNN(object):
     def __init__(self):
         pass
 
-    def fit(self, x_train, y_train, modelPath, epochs = 10, batch_size=100, max_features=68, maxlen=64, embedding_value=128, rnn_value=128):
+    def fit(self, x_train, y_train, modelPath, epochs = 20, batch_size=100, max_features=68, maxlen=64, embedding_value=8, rnn_value=8):
         self.model = keras.Sequential()
         self.model.add(layers.Embedding(max_features, embedding_value, input_length=maxlen))#128*64
         self.model.add(layers.SimpleRNN(rnn_value))
         self.model.add(layers.Dropout(0.4))# change later
         self.model.add(layers.Dense(1))
-        self.model.add(layers.Activation('sigmoid'))
+        self.model.add(layers.Activation('relu'))
         self.model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
         self.model.summary()
         x_train = sequence.pad_sequences(x_train,maxlen=maxlen)
@@ -38,13 +38,18 @@ class RNN(object):
         x_test = sequence.pad_sequences(x_test, maxlen=64)
         if modelPath != None:
             self.model = load_model(modelPath, compile="False")
+        self.model.summary()
+        keras.utils.plot_model(self.model, show_shapes=True)
+        model2 = keras.Model(self.model.input, self.model.layers[-4].output)
+        model2.summary()
+        y2 = model2.predict(x_test, batch_size=1)
+        print(y2)
         y_test = self.model.predict(x_test, batch_size=1).tolist()
         for index in y_test:
             y = float(str(index).strip('\n').strip('\r').strip(' ').strip('[').strip(']'))
             print(str(y) + '\n')
     
     def save_model_bin(self, binFilePath, modelPath=None):
-        import json
         from fxpmath import Fxp
         if modelPath != None:
             self.model = load_model(modelPath, compile="False")

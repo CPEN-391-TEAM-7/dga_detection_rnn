@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(1, '/Users/jingyuan/Desktop/dga/dga_detection_rnn')
 from model.rnn import RNN
 import datetime
 import numpy as np
@@ -5,10 +7,10 @@ import os
 
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
-start = datetime.datetime.now()
+starttime = datetime.datetime.now()
 
 trainDataPath = 'data/binary_training.txt'
-modelPath = 'rnn_binary_model_0209.h5'
+modelPath = 'model_export/rnn_binary_model_0228.h5'
 
 charList = {}
 confFilePath = './conf/charList.txt'
