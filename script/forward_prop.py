@@ -10,7 +10,7 @@ from math_help.fxp import Fxp
 model_path = "model_export/model_bininary_0301.bin"
 tanh_table_path = "conf/tanh_table.bin"
 charListPath = 'conf/charList.txt'
-input_string = "google.com"
+input_string = "qwdsdivwefqwdoamsxc.com"
 
 class RNN_Foward_Propagation(object):
 
@@ -43,25 +43,23 @@ class RNN_Foward_Propagation(object):
                 x_data.append(0)
         x2 = self.process_embedding(x_data)
         # self.print_layer(x2)
-        prev_out = [[Fxp([0]*16)] for x in range(8)] #initialize hidden state
-        x3 = []
+        prev_out = [[Fxp([0]*16)]*8] #initialize hidden state
         for input in x2:
             self.expand(input)
-            hidden = self.matrix_add(self.matrix_mul(self.rnn_w, input), self.rnn_b)
+            hidden = self.matrix_add(self.matrix_mul(self.transpose(input), self.rnn_w), self.rnn_b)
             # hidden = self.tanh_matrix(self.matrix_add(self.matrix_add(self.matrix_mul(self.rnn_w, input),
             #                                                           self.matrix_mul(self.rnn_u, hidden)),
             #                                           self.rnn_b))
-            prev_out = self.tanh_matrix(self.matrix_add(hidden, self.matrix_mul(self.rnn_u, prev_out)))
-            x3.append(prev_out.copy())
-        for x in x3:
-            self.print_layer(x)
-        x4 = []
-        for input in x3:
-            nxt = self.matrix_add(self.matrix_mul(self.transpose(input), self.dense_w), self.dense_b)
-            x4.append(nxt)
-        x5 = self.reLu_matrix(x4)
-        # for r in x5:
-        #     print(r[0][0].value())
+            prev_out = self.tanh_matrix(self.matrix_add(hidden, self.matrix_mul(prev_out, self.rnn_u)))
+        x3 = self.matrix_add(self.matrix_mul(prev_out, self.dense_w), self.dense_b)
+        # for x in x3:
+        #     self.print_layer(x)
+        # x4 = []
+        # for input in x3:
+        #     nxt = self.matrix_add(self.matrix_mul(self.transpose(input), self.dense_w), self.dense_b)
+        #     x4.append(nxt)
+        x4 = self.reLu_matrix(x3)
+        print(x4[0][0].value())
 
     def process_embedding(self, x_data):
         result = []
@@ -137,6 +135,7 @@ class RNN_Foward_Propagation(object):
         self.rnn_w = []
         self.rnn_u = []
         self.rnn_b = []
+        tmp = []
         for i in range(8):
             tmp_wh = []
             tmp_wx = []
@@ -145,7 +144,8 @@ class RNN_Foward_Propagation(object):
                 tmp_wx.append(self.get_byte_number(608+i*8+j))
             self.rnn_w.append(tmp_wh)
             self.rnn_u.append(tmp_wx)
-            self.rnn_b.append([self.get_byte_number(672 + i)])
+            tmp.append(self.get_byte_number(672 + i))
+        self.rnn_b.append(tmp)
 
     def parse_dense_layer(self):
         self.dense_w = []
