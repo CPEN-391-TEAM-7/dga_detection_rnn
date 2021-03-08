@@ -10,14 +10,14 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 starttime = datetime.datetime.now()
 
 trainDataPath = 'data/binary_training.txt'
-modelPath = 'model_export/rnn_binary_model_0302.h5'
+modelPath = 'model_export/rnn_binary_model_0307_rnn32.h5'
 
 charList = {}
 confFilePath = './conf/charList.txt'
 
 with open(confFilePath, 'r') as confFile:
     lines = confFile.read().split('\n')
-ii = 1
+ii = 0
 for line in lines:
     temp = line.strip('\n').strip('\r').strip(' ')
     if temp != '':
