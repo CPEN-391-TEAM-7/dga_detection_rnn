@@ -10,7 +10,7 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 starttime = datetime.datetime.now()
 
 trainDataPath = 'data/binary_training.txt'
-modelPath = 'model_export/rnn_binary_model_0307_rnn32.h5'
+modelPath = 'model_export/rnn_binary_model_0312_rnn32.h5'
 
 charList = {}
 confFilePath = './conf/charList.txt'

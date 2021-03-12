@@ -55,7 +55,7 @@ class RNN(object):
         if modelPath != None:
             self.model = load_model(modelPath, compile="False")
         with open(binFilePath, 'wb') as binFile:
-            largest = 0
+            largest_inaccuracy = 0
             for layer in self.model.layers:
                 g=layer.get_config()
                 h=layer.get_weights()
@@ -70,13 +70,14 @@ class RNN(object):
                     i = np.array(i)
                     for index, x in np.ndenumerate(i):
                         print(x)
-                        if x>largest:
-                            largest = x
-                        h_fxp = Fxp(x, signed=True, n_word=16, n_frac=12)
+                        h_fxp = Fxp(x, signed=True, n_word=16, n_frac=8)
+                        difference = abs(h_fxp.get_val()-x)
+                        if difference>largest_inaccuracy:
+                            largest_inaccuracy = difference
                         print(h_fxp.bin())
                         binFile.write(h_fxp.bin().encode(encoding="ascii",errors="unknown char"))
-            print("Largest number")
-            print(largest)
+            print("largest difference")
+            print(str(largest_inaccuracy))
 
             
     def save_model_txt(self, txtPath, modelPath=None):
