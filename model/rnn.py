@@ -27,11 +27,11 @@ class RNN(object):
     def predict(self,x_test, resultPath, batch_size=100, modelPath=None):
         x_test = sequence.pad_sequences(x_test, maxlen=32)
         if modelPath != None:
-            self.model = load_model(modelPath, complile="False")
+            self.model = load_model(modelPath, compile="False")
         y_test = self.model.predict(x_test, batch_size=batch_size).tolist()
         file = open(resultPath, 'w+')
         for index in y_test:
-            y = float(str(index).strip('\n').strip('\r').strip(' ').strip('[').strip(']'))
+            y = round(float(str(index).strip('\n').strip('\r').strip(' ').strip('[').strip(']')))
             file.write(str(y) + '\n')
             
     def predict_p(self,x_test, modelPath=None):
@@ -39,8 +39,8 @@ class RNN(object):
         if modelPath != None:
             self.model = load_model(modelPath, compile="False")
         self.model.summary()
-        # dot_img_file = 'model_1.png'
-        # keras.utils.plot_model(self.model, to_file=dot_img_file, show_shapes=True)
+        dot_img_file = 'model_2.png'
+        keras.utils.plot_model(self.model, to_file=dot_img_file, show_shapes=True)
         # model2 = keras.Model(self.model.input, self.model.layers[-4].output)
         # model2.summary()
         # y2 = model2.predict(x_test, batch_size=1)
@@ -55,6 +55,7 @@ class RNN(object):
         if modelPath != None:
             self.model = load_model(modelPath, compile="False")
         with open(binFilePath, 'wb') as binFile:
+            largest = 0
             for layer in self.model.layers:
                 g=layer.get_config()
                 h=layer.get_weights()
@@ -69,9 +70,13 @@ class RNN(object):
                     i = np.array(i)
                     for index, x in np.ndenumerate(i):
                         print(x)
+                        if x>largest:
+                            largest = x
                         h_fxp = Fxp(x, signed=True, n_word=16, n_frac=12)
                         print(h_fxp.bin())
                         binFile.write(h_fxp.bin().encode(encoding="ascii",errors="unknown char"))
+            print("Largest number")
+            print(largest)
 
             
     def save_model_txt(self, txtPath, modelPath=None):

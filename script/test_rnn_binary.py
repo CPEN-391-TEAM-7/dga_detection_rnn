@@ -3,7 +3,7 @@ sys.path.insert(1, '/Users/jingyuan/Desktop/dga/dga_detection_rnn')
 from model.rnn import RNN
 import argparse
 
-modelPath = 'model_export/rnn_binary_model_0228.h5'
+modelPath = 'model_export/rnn_binary_model_0307_rnn32.h5'
 charListPath = 'conf/charList.txt'
 
 def getCharList(charListPath):
@@ -11,7 +11,7 @@ def getCharList(charListPath):
 
     with open(charListPath, 'r') as confFile:
         lines = confFile.read().split('\n')
-    ii = 1
+    ii = 0
     for line in lines:
         temp = line.strip('\n').strip('\r').strip(' ')
         if temp != '':
