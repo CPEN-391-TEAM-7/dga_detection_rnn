@@ -60,7 +60,6 @@ class RNN_Foward_Propagation(object):
             # print(len(self.rnn_u))
             # print(len(self.rnn_u[0]))
             prev_out = self.tanh_matrix(self.matrix_add(hidden, self.matrix_mul(prev_out, self.rnn_u)))
-        self.print_layer(prev_out)
         x3 = self.matrix_add(self.matrix_mul(prev_out, self.dense_w), self.dense_b)
         # for x in x3:
         #     self.print_layer(x)
@@ -88,6 +87,15 @@ class RNN_Foward_Propagation(object):
                 tmp.append(j.value())
             result.append(tmp)
         print(result)
+
+    def to_float(self, matrix):
+        result = []
+        for i in matrix:
+            tmp = []
+            for j in i:
+                tmp.append(j.value())
+            result.append(tmp)
+        return result
 
     def transpose(self, matrix):
         result = []
@@ -202,10 +210,29 @@ class RNN_Foward_Propagation(object):
     #             diff = newdiff
     #     return result
 
-    def tanh(self, fxp_num):
-        xTanh = np.tanh(fxp_num.value())
-        xTanh_fxp = Fxp2(xTanh, signed=True, n_word=16, n_frac=12)
-        return Fxp(xTanh_fxp.bin())
+    # def tanh(self, fxp_num):
+    #     xTanh = np.tanh(fxp_num.value())
+    #     xTanh_fxp = Fxp2(xTanh, signed=True, n_word=16, n_frac=8)
+    #     return Fxp(xTanh_fxp.bin())
+
+    def tanh(self, i):
+        i = i.value()
+        sign = i < 0
+        x = i
+        if (sign):
+            x = -i
+        y = 0
+        if (x < 0.5):
+            y = x
+        elif (x < 1.2):
+            y = x / 2 + 0.25
+        elif (x < 2.4):
+            y = x / 8 + 0.7
+        else:
+            y = 1
+        if (sign):
+            y = -y
+        return Fxp(Fxp2(y, signed=True, n_word=16, n_frac=8).bin())
 
     def reLu(self, fxp_num):
         if fxp_num.value() < 0:

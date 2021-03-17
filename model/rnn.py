@@ -52,7 +52,7 @@ class RNN(object):
         self.model.summary()
         # dot_img_file = 'model_2.png'
         # keras.utils.plot_model(self.model, to_file=dot_img_file, show_shapes=True)
-        model2 = keras.Model(self.model.input, self.model.layers[-4].output)
+        model2 = keras.Model(self.model.input, self.model.layers[-2].output)
         model2.summary()
         y2 = model2.predict(x_test, batch_size=1)
         print(y2)

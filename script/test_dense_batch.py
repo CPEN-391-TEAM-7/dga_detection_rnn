@@ -6,7 +6,7 @@ import os
 
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 trainDataPath = 'test_data/binary_test_1000.txt'
-modelPath = 'model_export/rnn_binary_model_0307_rnn32.h5'
+modelPath = 'model_export/rnn_binary_model_0317_rnn32.h5'
 resultPath = 'test_result/denseout_test_1000.txt'
 
 charList = {}
@@ -17,9 +17,8 @@ with open(confFilePath, 'r') as confFile:
 ii = 0
 for line in lines:
     temp = line.strip('\n').strip('\r').strip(' ')
-    if temp != '':
-        charList[temp] = ii
-        ii += 1
+    charList[temp] = ii
+    ii += 1
 
 max_features = ii
 x_data_sum = []
