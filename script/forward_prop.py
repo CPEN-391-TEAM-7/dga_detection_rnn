@@ -1,16 +1,18 @@
-# embedding = 1 * 68 * 8
-# simple rnn = 8 * 8, 8 * 8, 8 * 1
+# embedding = 1 * 39 * 4
+# simple rnn = 4 * 32, 32 * 32, 32 * 1
 # drop out: none
-# dense: 8 * 1, 1 * 1
+# dense: 32 * 1, 1 * 1
 # activation: reLu
 import sys
 sys.path.insert(1, '/Users/jingyuan/Desktop/dga/dga_detection_rnn')
 from math_help.fxp import Fxp
-
-model_path = "model_export/model_bininary_0301.bin"
+from fxpmath import Fxp as Fxp2
+import math
+import numpy as np
+model_path = "model_export/rnn_binary_model_0317_rnn32.bin"
 tanh_table_path = "conf/tanh_table.bin"
 charListPath = 'conf/charList.txt'
-input_string = "qwdsdivwefqwdoamsxc.com"
+input_string = "hohphgbgnvxfxceb.eu"
 
 class RNN_Foward_Propagation(object):
 
@@ -42,15 +44,23 @@ class RNN_Foward_Propagation(object):
                 print('unexpected char' + ' : ' + char)
                 x_data.append(0)
         x2 = self.process_embedding(x_data)
+        # self.print_layer(self.embedding_layer)
         # self.print_layer(x2)
-        prev_out = [[Fxp([0]*16)]*8] #initialize hidden state
+        prev_out = [[Fxp([0]*16)]*32] #initialize hidden state
         for input in x2:
             self.expand(input)
             hidden = self.matrix_add(self.matrix_mul(self.transpose(input), self.rnn_w), self.rnn_b)
             # hidden = self.tanh_matrix(self.matrix_add(self.matrix_add(self.matrix_mul(self.rnn_w, input),
             #                                                           self.matrix_mul(self.rnn_u, hidden)),
             #                                           self.rnn_b))
+            # print(len(hidden))
+            # print(len(hidden[0]))
+            # print(len(prev_out))
+            # print(len(prev_out[0]))
+            # print(len(self.rnn_u))
+            # print(len(self.rnn_u[0]))
             prev_out = self.tanh_matrix(self.matrix_add(hidden, self.matrix_mul(prev_out, self.rnn_u)))
+        self.print_layer(prev_out)
         x3 = self.matrix_add(self.matrix_mul(prev_out, self.dense_w), self.dense_b)
         # for x in x3:
         #     self.print_layer(x)
@@ -58,15 +68,16 @@ class RNN_Foward_Propagation(object):
         # for input in x3:
         #     nxt = self.matrix_add(self.matrix_mul(self.transpose(input), self.dense_w), self.dense_b)
         #     x4.append(nxt)
-        x4 = self.reLu_matrix(x3)
+        print(x3[0][0].value())
+        x4 = self.sigmoid_matrix(x3)
         print(x4[0][0].value())
 
     def process_embedding(self, x_data):
         result = []
-        for i in range(64-len(x_data)):
+        for i in range(32-len(x_data)):
             result.append(self.embedding_layer[0].copy())
         for i in x_data:
-            result.append(self.embedding_layer[i+1].copy())
+            result.append(self.embedding_layer[i].copy())
         return result
 
     def print_layer(self, matrix):
@@ -94,13 +105,12 @@ class RNN_Foward_Propagation(object):
             lines = confFile.read().split('\n')
         ii = 0
         for line in lines:
-            temp = line.strip('\n').strip('\r').strip(' ')
-            if temp != '':
-                self.charList[temp] = ii
-                ii += 1
+            temp = line.strip('\n').strip('\r')
+            self.charList[temp] = ii
+            ii += 1
 
     def get_char_vector(self, index):
-        result = [Fxp([0]*16)]*68
+        result = [Fxp([0]*16)]*39
         result[index] = Fxp([0,0,0,1]+[0]*12)
         return result
 
@@ -125,10 +135,10 @@ class RNN_Foward_Propagation(object):
 
     def parse_emedding_layer(self):
         self.embedding_layer = [];
-        for i in range(68):
+        for i in range(39):
             tmp = []
-            for j in range(8):
-                tmp.append(self.get_byte_number(i*8+j))
+            for j in range(4):
+                tmp.append(self.get_byte_number(i*4+j))
             self.embedding_layer.append(tmp)
 
     def parse_rnn_layer(self):
@@ -136,23 +146,25 @@ class RNN_Foward_Propagation(object):
         self.rnn_u = []
         self.rnn_b = []
         tmp = []
-        for i in range(8):
+        for i in range(4):
             tmp_wh = []
-            tmp_wx = []
-            for j in range(8):
-                tmp_wh.append(self.get_byte_number(544+i*8+j))
-                tmp_wx.append(self.get_byte_number(608+i*8+j))
+            for j in range(32):
+                tmp_wh.append(self.get_byte_number(156+i*32+j))
             self.rnn_w.append(tmp_wh)
-            self.rnn_u.append(tmp_wx)
-            tmp.append(self.get_byte_number(672 + i))
+        for i in range(32):
+            tmp_wu = []
+            for j in range(32):
+                tmp_wu.append(self.get_byte_number(284+i*32+j))
+            self.rnn_u.append(tmp_wu)
+            tmp.append(self.get_byte_number(1308 + i))
         self.rnn_b.append(tmp)
 
     def parse_dense_layer(self):
         self.dense_w = []
         self.dense_b = []
-        for i in range(8):
-            self.dense_w.append([self.get_byte_number(680 + i)])
-        self.dense_b.append([self.get_byte_number(688)])
+        for i in range(32):
+            self.dense_w.append([self.get_byte_number(1340 + i)])
+        self.dense_b.append([self.get_byte_number(1372)])
 
     #compare fixed point and float point number
     def verify_fixed_point(self, fpn, ftn):
@@ -191,8 +203,6 @@ class RNN_Foward_Propagation(object):
     #     return result
 
     def tanh(self, fxp_num):
-        from fxpmath import Fxp as Fxp2
-        import numpy as np
         xTanh = np.tanh(fxp_num.value())
         xTanh_fxp = Fxp2(xTanh, signed=True, n_word=16, n_frac=12)
         return Fxp(xTanh_fxp.bin())
@@ -218,6 +228,18 @@ class RNN_Foward_Propagation(object):
                 result[i][j] += X[i][j] + Y[i][j]
         return result
 
+    def sigmoid(self, fxp_num):
+        h_fxp = Fxp2(1 / (1 + math.exp(-fxp_num.value())), signed=True, n_word=16, n_frac=8)
+        return Fxp(h_fxp.bin())
+
+    def sigmoid_matrix(self, matrix):
+        result = []
+        for i in matrix:
+            if not type(i) == list:
+                result.append(self.sigmoid(i))
+            else:
+                result.append(self.sigmoid_matrix(i))
+        return result
 
 def test_tanh():
     rnn = RNN_Foward_Propagation(model_path, tanh_table_path, charListPath)
@@ -235,5 +257,5 @@ def test_matrix():
 
 rnn = RNN_Foward_Propagation(model_path, tanh_table_path, charListPath)
 rnn.forward_prop(input_string)
-
+# print(rnn.dense_b[0][0].value())
 # test_matrix()

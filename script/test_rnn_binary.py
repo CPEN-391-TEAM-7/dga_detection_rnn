@@ -3,7 +3,7 @@ sys.path.insert(1, '/Users/jingyuan/Desktop/dga/dga_detection_rnn')
 from model.rnn import RNN
 import argparse
 
-modelPath = 'model_export/rnn_binary_model_0307_rnn32.h5'
+modelPath = 'model_export/rnn_binary_model_0317_rnn32.h5'
 charListPath = 'conf/charList.txt'
 
 def getCharList(charListPath):
@@ -14,9 +14,8 @@ def getCharList(charListPath):
     ii = 0
     for line in lines:
         temp = line.strip('\n').strip('\r').strip(' ')
-        if temp != '':
-            charList[temp] = ii
-            ii += 1
+        charList[temp] = ii
+        ii += 1
     return charList
     
 if __name__ == '__main__':
@@ -28,7 +27,7 @@ if __name__ == '__main__':
     domain = io_args.domain
     
     charList = getCharList(charListPath)
-    
+    print(charList)
     x_data = []
     for char in domain:
         try:

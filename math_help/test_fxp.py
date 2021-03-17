@@ -3,7 +3,7 @@ sys.path.insert(1, '/Users/jingyuan/Desktop/dga/dga_detection_rnn')
 from script.forward_prop import RNN_Foward_Propagation
 from math_help.fxp import Fxp
 
-model_path = "model_export/model_bininary_0228.bin"
+model_path = "model_export/rnn_binary_model_0307_rnn32.bin"
 tanh_table_path = "conf/tanh_table.bin"
 charListPath = 'conf/charList.txt'
 input_string = "google.com"
@@ -41,7 +41,7 @@ def test_add():
         print("Test Value "+str((a+b).value()))
         print("\n")
 
-test_add()
+test_mul()
 
 
 

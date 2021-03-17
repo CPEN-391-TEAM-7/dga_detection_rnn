@@ -33,9 +33,9 @@ class Fxp(object):
                 overflow = nxtoverflow
         result.reverse()
         if sign:
-            return Fxp([sign]+self.complement(result[5:20]))
+            return Fxp([sign]+self.complement(result[9:24]))
         else:
-            return Fxp([sign]+result[5:20])
+            return Fxp([sign]+result[9:24])
 
     def __rmul__(self, other):
         result = [0]*32
@@ -88,11 +88,11 @@ class Fxp(object):
             if self.num[0] == 0:
                 for i in range(1,16):
                     if self.num[i] == 1:
-                        result += math.pow(2,3-i)
+                        result += math.pow(2,7-i)
             else:
                 for i in range(1,16):
                     if self.num[i] == 0:
-                        result += math.pow(2,3-i)
+                        result += math.pow(2,7-i)
                 result *= -1
             return result
     

@@ -1,13 +1,12 @@
 import sys
 sys.path.insert(1, '/Users/jingyuan/Desktop/dga/dga_detection_rnn')
 from model.rnn import RNN
-import datetime
 import numpy as np
 import os
 
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 trainDataPath = 'data/binary_training.txt'
-modelPath = 'model_export/rnn_binary_model_0307_rnn32.h5'
+modelPath = 'model_export/rnn_binary_model_0317_rnn32.h5'
 resultPath = 'test_result/binary_test.txt'
 
 charList = {}
@@ -18,9 +17,8 @@ with open(confFilePath, 'r') as confFile:
 ii = 0
 for line in lines:
     temp = line.strip('\n').strip('\r').strip(' ')
-    if temp != '':
-        charList[temp] = ii
-        ii += 1
+    charList[temp] = ii
+    ii += 1
 
 max_features = ii
 x_data_sum = []
